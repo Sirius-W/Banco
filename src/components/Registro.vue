@@ -1,5 +1,3 @@
-como quedaria el paso 4 en mi codigo
-
 <template>
   <!-- Contenedor principal que usa un gradiente de fondo -->
   <div id="contenedorPrincipal">
@@ -94,17 +92,17 @@ como quedaria el paso 4 en mi codigo
           Cancelar
         </button>
       </div>
-      
+
     </div>
   </div>
 </template>
 
 <script>
-export default {
-  // Definición del componente Vue, en este caso "RegistroContribuyente"
-  name: "RegistroContribuyente",
 
-  // Estado reactivo del componente: los campos del formulario
+import axios from 'axios';
+
+export default {
+  name: "RegistroContribuyente",
   data() {
     return {
       formulario: {
@@ -122,49 +120,51 @@ export default {
         usoCfdi: "",
         regimenFiscal: "",
       },
-      isSubmitting: false,  // Bandera para evitar envío múltiple (aunque no se usa actualmente)
+      isSubmitting: false,
+      datosApi: null,
     };
   },
-
   methods: {
-    // Método para validar que el Código Postal sea solo numérico y de máximo 5 caracteres
     validarCodigoPostal(event) {
       this.formulario.codigoPostal = this.formulario.codigoPostal.replace(/[^0-9]/g, '').slice(0, 5);
     },
-
-    // Método para validar que el Régimen Fiscal sea solo numérico y de máximo 3 caracteres
     validarCRegimenFiscal(event) {
       this.formulario.regimenFiscal = this.formulario.regimenFiscal.replace(/[^0-9]/g, '').slice(0, 3);
     },
-
-    // Método que se ejecuta al hacer clic en el botón "Guardar"
     guardar() {
-      // Verificamos que todos los campos estén completos
-      const campos = Object.entries(this.formulario); // Convertimos el formulario en un arreglo de [clave, valor]
-      const camposVacios = campos.filter(([clave, valor]) => valor.trim() === ''); // Filtramos los vacíos
+      if (this.isSubmitting) return;
 
-      // Si hay campos vacíos, mostramos un mensaje de alerta con los campos faltantes
+      const campos = Object.entries(this.formulario);
+      const camposVacios = campos.filter(([_, valor]) => valor.trim() === '');
       if (camposVacios.length > 0) {
-        const nombresCampos = camposVacios.map(([clave]) => this.formatearCampo(clave)).join(', '); // Obtenemos los nombres de los campos vacíos
+        const nombresCampos = camposVacios.map(([clave]) => this.formatearCampo(clave)).join(', ');
         alert(`Por favor llena todos los campos. Campos vacíos: ${nombresCampos}`);
-        return; // Detenemos la ejecución
+        return;
       }
 
-      // Si todo está correcto, mostramos los datos en la consola
-      console.log("Datos del formulario:", this.formulario);
-      alert("Datos guardados correctamente (ver consola).");
+      this.isSubmitting = true;
+
+      this.$axios.post('https://2358f168-7dbe-4c38-880a-0b3470f80ffc.mock.pstmn.io', this.formulario)
+        .then((respuesta) => {
+          console.log('Respuesta del servidor:', respuesta.data);
+          alert('Datos guardados correctamente.');
+          this.cancelar();
+        })
+        .catch((error) => {
+          console.error('Error al guardar los datos:', error);
+          alert('Hubo un error al guardar los datos. Verifica tu conexión o intenta más tarde.');
+        })
+        .finally(() => {
+          this.isSubmitting = false;
+        });
     },
 
-    // Método que se ejecuta al hacer clic en el botón "Cancelar"
     cancelar() {
-      // Limpiamos todos los campos del formulario
       for (let campo in this.formulario) {
         this.formulario[campo] = "";
       }
       alert("Formulario limpiado.");
     },
-
-    // Función auxiliar para dar formato a los nombres de los campos (por ejemplo, RFC -> 'RFC')
     formatearCampo(campo) {
       switch (campo) {
         case 'rfc': return 'RFC';
@@ -185,6 +185,7 @@ export default {
     }
   }
 };
+
 </script>
 
 <style scoped>
@@ -197,7 +198,8 @@ export default {
   justify-content: center;
   align-items: center;
   margin: 0;
-  position: fixed; /* Asegura que cubra toda la ventana */
+  position: fixed;
+  /* Asegura que cubra toda la ventana */
   top: 0;
   left: 0;
 }

@@ -1,6 +1,6 @@
 # Banco
 
-This template should help get you started developing with Vue 3 in Vite.
+Subiendo interfaces iniciales de Banco asi como las librerias axion e Unit test
 
 ## Recommended IDE Setup
 
@@ -20,6 +20,8 @@ npm install
 
 ```sh
 npm run dev
+npx vitest
+
 ```
 
 ### Compile and Minify for Production
