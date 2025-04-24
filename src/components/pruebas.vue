@@ -1,5 +1,3 @@
-como quedaria el paso 4 en mi codigo
-
 <template>
   <!-- Contenedor principal que usa un gradiente de fondo -->
   <div id="contenedorPrincipal">
